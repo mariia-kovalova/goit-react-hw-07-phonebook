@@ -1,27 +1,23 @@
 import { useSelector } from 'react-redux';
-import {
-  selectContactsItems,
-  selectContactsIsLoading,
-  selectContactsError,
-  selectFilter,
-} from 'redux/selectors';
+import { selectContacts, selectFilter } from 'redux/selectors';
 import { ContactItem } from 'components/ContactItem';
 import { List } from './ContactList.styled';
 import { Loader } from 'components/Loader';
 import { Error } from 'components/Error';
 
-const filterContacts = (contacts, filter) => {
-  if (filter === '') return contacts;
-  const normalizedFilter = filter.toLocaleLowerCase();
-  const regExp = new RegExp(normalizedFilter, 'gi');
-  return contacts.filter(({ name }) => name.toLocaleLowerCase().match(regExp));
-};
-
 export const ContactList = () => {
-  const contacts = useSelector(selectContactsItems);
-  const isLoading = useSelector(selectContactsIsLoading);
-  const error = useSelector(selectContactsError);
+  const { items: contacts, isLoading, error } = useSelector(selectContacts);
   const filter = useSelector(selectFilter);
+
+  const filterContacts = (contacts, filter) => {
+    if (filter === '') return contacts;
+    const normalizedFilter = filter.toLocaleLowerCase();
+    const regExp = new RegExp(normalizedFilter, 'gi');
+    return contacts.filter(({ name }) =>
+      name.toLocaleLowerCase().match(regExp)
+    );
+  };
+
   const filteredContacts = filterContacts(contacts, filter);
 
   const showError = !isLoading && error;

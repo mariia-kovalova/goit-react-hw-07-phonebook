@@ -7,7 +7,7 @@ export const Filter = () => {
   const dispatch = useDispatch();
   const filterId = nanoid();
 
-  const handleChange = e => dispatch(setFilter(e.currentTarget.value));
+  const handleChange = e => dispatch(setFilter(e.currentTarget.value.trim()));
 
   return (
     <Wrap>
