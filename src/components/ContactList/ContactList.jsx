@@ -5,19 +5,16 @@ import { List } from './ContactList.styled';
 import { Loader } from 'components/Loader';
 import { Error } from 'components/Error';
 
+const filterContacts = (contacts, filter) => {
+  if (filter === '') return contacts;
+  const normalizedFilter = filter.toLocaleLowerCase();
+  const regExp = new RegExp(normalizedFilter, 'gi');
+  return contacts.filter(({ name }) => name.toLocaleLowerCase().match(regExp));
+};
+
 export const ContactList = () => {
   const { items: contacts, isLoading, error } = useSelector(selectContacts);
   const filter = useSelector(selectFilter);
-
-  const filterContacts = (contacts, filter) => {
-    if (filter === '') return contacts;
-    const normalizedFilter = filter.toLocaleLowerCase();
-    const regExp = new RegExp(normalizedFilter, 'gi');
-    return contacts.filter(({ name }) =>
-      name.toLocaleLowerCase().match(regExp)
-    );
-  };
-
   const filteredContacts = filterContacts(contacts, filter);
 
   const showError = !isLoading && error;
