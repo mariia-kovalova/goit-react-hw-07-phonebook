@@ -1,27 +1,33 @@
-import { useSelector } from 'react-redux';
-import { selectContacts, selectFilter } from 'redux/selectors';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectContactsIsLoading,
+  selectContactsError,
+  selectFilteresContacts,
+  selectFilter,
+} from 'redux/selectors';
 import { ContactItem } from 'components/ContactItem';
 import { List } from './ContactList.styled';
 import { Loader } from 'components/Loader';
 import { Error } from 'components/Error';
-
-const filterContacts = (contacts, filter) => {
-  if (filter === '') return contacts;
-  const normalizedFilter = filter.toLocaleLowerCase();
-  const regExp = new RegExp(normalizedFilter, 'gi');
-  return contacts.filter(({ name }) => name.toLocaleLowerCase().match(regExp));
-};
+import { fetchContacts } from 'redux/operations';
 
 export const ContactList = () => {
-  const { items: contacts, isLoading, error } = useSelector(selectContacts);
+  const isLoading = useSelector(selectContactsIsLoading);
+  const error = useSelector(selectContactsError);
+  const contacts = useSelector(selectFilteresContacts);
   const filter = useSelector(selectFilter);
-  const filteredContacts = filterContacts(contacts, filter);
+  const dispatch = useDispatch();
 
-  const showError = !isLoading && error;
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   const isOk = !isLoading && !error;
-  const empty = isOk && contacts.length === 0;
-  const noMatches = isOk && filter !== '' && filteredContacts.length === 0;
-  const showContactsList = isOk && filteredContacts.length !== 0;
+  const showError = !isLoading && error;
+  const empty = isOk && filter === '' && contacts.length === 0;
+  const noMatches = isOk && filter !== '' && contacts.length === 0;
+  const showList = isOk && contacts.length !== 0;
 
   return (
     <>
@@ -29,9 +35,9 @@ export const ContactList = () => {
       {showError && <Error>Sorry, something went wrong.</Error>}
       {empty && <Error>Your contacts list is empty.</Error>}
       {noMatches && <Error>Sorry, there is no such contacs</Error>}
-      {showContactsList && (
+      {showList && (
         <List>
-          {filteredContacts.map(contact => (
+          {contacts.map(contact => (
             <ContactItem key={contact.id} contact={contact} />
           ))}
         </List>
